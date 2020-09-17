@@ -2,7 +2,7 @@ $(document).ready(function () {
   $("#jquery_jplayer_1").jPlayer({
     ready: function (event) {
       $(this).jPlayer("setMedia", {
-        oga: "http://moshimoshi.out.airtime.pro:8000/moshimoshi_a",
+        oga: "https://moshimoshi.out.airtime.pro:8000/moshimoshi_a",
       });
     },
     swfPath: "js",
