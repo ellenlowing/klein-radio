@@ -9,3 +9,13 @@ canvas {
   top: 0;
   left: 0;
 }
+
+#jp_container_1 {
+}
+
+.chatango {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  z-index: 0;
+}

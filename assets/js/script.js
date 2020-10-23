@@ -46,17 +46,28 @@ $(document).ready(function () {
   });
 });
 
+let lineX;
+let lineY;
+let vizWidth;
+let vizHeight;
+let dragStarted = false;
+
 function setup() {
   createCanvas(window.innerWidth, window.innerHeight);
   background(0);
   fill(255);
   stroke(255);
+  lineX = windowWidth / 2;
+  lineY = windowHeight / 2;
+  vizWidth = lineX;
+  vizHeight = lineY;
+  gridResized(windowWidth / 2, windowHeight / 2);
 }
 
 function draw() {
   background(0);
-  line(mouseX, 0, mouseX, windowHeight);
-  line(0, mouseY, windowWidth, mouseY);
+  line(lineX, 0, lineX, windowHeight);
+  line(0, lineY, windowWidth, lineY);
   if (distortionFx) distortionFx.distortion = map(mouseX, 0, windowWidth, 0, 5);
   if (pitchShiftFx) pitchShiftFx.pitch = map(mouseY, 0, windowHeight, 0, 10);
 
@@ -67,15 +78,40 @@ function draw() {
     analyser.getByteTimeDomainData(dataArray);
     noFill();
     beginShape();
-    let sliceWidth = (windowWidth * 1.0) / bufferLength;
-    let x = 0;
+    let sliceWidth = (vizWidth * 1.0) / bufferLength;
+    let x = lineX;
     for (let i = 0; i < bufferLength; i++) {
       stroke(i);
       let v = dataArray[i] / 128.0;
-      let y = (v * windowHeight) / 2;
+      let y = (v * vizHeight) / 2 + lineY;
       curveVertex(x, y);
       x += sliceWidth;
     }
     endShape();
   }
+}
+
+function mouseDragged() {
+  if (!dragStarted && dist(mouseX, mouseY, lineX, lineY) < 20)
+    dragStarted = true;
+  if (dragStarted) {
+    gridResized(mouseX, mouseY);
+  }
+}
+
+function mouseReleased() {
+  dragStarted = false;
+}
+
+function gridResized(x, y) {
+  lineX = x;
+  lineY = y;
+  vizWidth = windowWidth - lineX;
+  vizHeight = windowHeight - lineY;
+  $(".chatango").css({
+    width: `${lineX * 0.8}px`,
+    height: `${lineY * 0.8}px`,
+    top: `${lineY * 0.1}px`,
+    left: `${lineX * 0.1}px`,
+  });
 }
