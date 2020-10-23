@@ -11,6 +11,17 @@ canvas {
 }
 
 #jp_container_1 {
+  display: none;
+}
+
+.dj {
+  color: #fff;
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  top: 0;
+  left: 50%;
+  /* transform: scaleY(1.5); */
 }
 
 .chatango {

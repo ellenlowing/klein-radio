@@ -1,5 +1,6 @@
 let distortionInput = 0;
 let pitchShiftInput = 0;
+let audio = null;
 
 let distortionFx, pitchShiftFx;
 
@@ -20,7 +21,7 @@ $(document).ready(function () {
   });
 
   const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audio = document.querySelector("audio");
+  audio = document.querySelector("audio");
   let context;
   let source = null;
   let gainNode = null;
@@ -50,26 +51,38 @@ let lineX;
 let lineY;
 let vizWidth;
 let vizHeight;
+let djWidth;
+let djHeight;
 let dragStarted = false;
+let initGesture = false;
 
 function setup() {
   createCanvas(window.innerWidth, window.innerHeight);
   background(0);
+  textAlign(CENTER);
   fill(255);
   stroke(255);
   lineX = windowWidth / 2;
   lineY = windowHeight / 2;
   vizWidth = lineX;
   vizHeight = lineY;
+  getInitSize();
   gridResized(windowWidth / 2, windowHeight / 2);
 }
 
 function draw() {
   background(0);
+  stroke(255);
   line(lineX, 0, lineX, windowHeight);
   line(0, lineY, windowWidth, lineY);
-  if (distortionFx) distortionFx.distortion = map(mouseX, 0, windowWidth, 0, 5);
-  if (pitchShiftFx) pitchShiftFx.pitch = map(mouseY, 0, windowHeight, 0, 10);
+
+  if (!initGesture) {
+    noStroke();
+    fill(255, 0, 0);
+    circle(lineX, lineY, 70);
+    fill(0);
+    text("Drag me!", lineX, lineY);
+  }
 
   if (analyser) {
     analyser.fftSize = 2048;
@@ -92,15 +105,28 @@ function draw() {
 }
 
 function mouseDragged() {
+  if (!initGesture) {
+    initGesture = true;
+    audio.play();
+  }
   if (!dragStarted && dist(mouseX, mouseY, lineX, lineY) < 20)
     dragStarted = true;
   if (dragStarted) {
     gridResized(mouseX, mouseY);
+
+    if (distortionFx)
+      distortionFx.distortion = map(mouseX, 0, windowWidth, 0, 5);
+    if (pitchShiftFx) pitchShiftFx.pitch = map(mouseY, 0, windowHeight, -5, 5);
   }
 }
 
 function mouseReleased() {
   dragStarted = false;
+}
+
+function getInitSize() {
+  djWidth = parseInt($(".dj").css("width"));
+  djHeight = parseInt($(".dj").css("height"));
 }
 
 function gridResized(x, y) {
@@ -113,5 +139,14 @@ function gridResized(x, y) {
     height: `${lineY * 0.8}px`,
     top: `${lineY * 0.1}px`,
     left: `${lineX * 0.1}px`,
+  });
+
+  let djSclX = (vizWidth / djWidth) * 0.8;
+  let djSclY = (lineY / djHeight) * 0.9;
+  $(".dj").css({
+    transform: `translate(${vizWidth / 2}px, ${
+      lineY / 2
+    }px) scale(${djSclX}, ${djSclY})`,
+    left: `${lineX}px`,
   });
 }
